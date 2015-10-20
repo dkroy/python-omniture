@@ -87,10 +87,7 @@ The api seamlessly switches over to the realtime reporting api. In the example b
     report = suite.report.element("prop73")\
         .metric("instances")\
         .from_date('-15 minutes')\
-        .granularity('minute:1') \
-        
-
-    print report
+        .granularity('minute:1').run()
 ```
 ### Report Options 
 Here are the options you can add to a report. 

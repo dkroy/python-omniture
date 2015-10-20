@@ -9,7 +9,7 @@ import json
 
 
 class InvalidReportError(Exception):
-    """ 
+    """
     Exception raised when the API says a report defintion is
     invalid
     """
@@ -31,7 +31,7 @@ class InvalidReportError(Exception):
 class ReportNotReadyError(Exception):
     """ Exception that is raised when a report is not ready to be downloaded
     """
-    def __init__(self,error):
+    def __init__(self, error):
         self.log = logging.getLogger(__name__)
         self.log.debug("Report Not Ready")
         super(ReportNotReadyError, self).__init__("Report Not Ready")
@@ -39,18 +39,18 @@ class ReportNotReadyError(Exception):
 
 #  TODO: also make this iterable (go through rows)
 class Report(object):
-    """ 
-    Object to parse the responses of the report 
-    
+    """
+    Object to parse the responses of the report
+
     To get the data use
     >>> report.data
-    
+
     To get a Pandas DataFrame use
     >>> report.dataframe
-    
-    To get the raw response use 
+
+    To get the raw response use
     >>> print report
-    
+
     """
     def process(self):
         """ Parse out the relevant data from the report and store it for easy access
@@ -66,7 +66,7 @@ class Report(object):
         self.elements = Value.list('elements', report['elements'], self.suite, 'name', 'id')
         self.period = str(report['period'])
         self.type = str(report['type'])
-        
+
         segments = report.get('segments')
         if segments:
             self.segments = []
@@ -75,7 +75,7 @@ class Report(object):
         else:
             self.segments = None
 
-        #Set as none until it is actually used
+        # Set as none until it is actually used
         self.dict_data = None
         self.pandas_data = None
 
@@ -84,34 +84,33 @@ class Report(object):
         """ Returns the report data as a set of dicts for easy quering
             It generates the dicts on the 1st call then simply returns the reference to the data in subsequent calls
         """
-        #If the data hasn't been generate it generate the data
-        if self.dict_data == None:
+        # If the data hasn't been generate it generate the data
+        if self.dict_data is None:
             self.dict_data = self.parse_rows(self.report['data'])
-            
+
         return self.dict_data
-    
-    def parse_rows(self,row, level=0, upperlevels=None):
-        """ 
+
+    def parse_rows(self, row, level=0, upperlevels=None):
+        """
         Parse through the data returned by a repor. Return a list of dicts. 
-        
+
         This method is recursive.
         """
-        #self.log.debug("Level %s, Upperlevels %s, Row Type %s, Row: %s", level,upperlevels, type(row), row)
+        # self.log.debug("Level %s, Upperlevels %s, Row Type %s, Row: %s", level,upperlevels, type(row), row)
         data = {}
         data_set = []
-        
-        #merge in the upper levels
-        if upperlevels != None:
+
+        # merge in the upper levels
+        if upperlevels is not None:
             data.update(upperlevels)
-            
-        
+
         if type(row) == list:
             for r in row:
-                #on the first call set add to the empty list 
-                pr = self.parse_rows(r,level, data.copy())
+                # on the first call set add to the empty list
+                pr = self.parse_rows(r, level, data.copy())
                 if type(pr) == dict:
                     data_set.append(pr)
-                #otherwise add to the existing list
+                # otherwise add to the existing list
                 else:
                     data_set.extend(pr)
 
@@ -133,7 +132,7 @@ class Report(object):
                 data[element] = row['name'].encode('utf-8')
             # parse out any breakdowns and add to the data set
             if row.has_key('breakdown'):
-                data_set.extend(self.parse_rows(row['breakdown'], level+1, data))
+                data_set.extend(self.parse_rows(row['breakdown'], level + 1, data))
             elif row.has_key('counts'):
                 for index, metric in enumerate(row['counts']):
                         # decide what type of event
