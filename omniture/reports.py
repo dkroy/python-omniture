@@ -92,7 +92,7 @@ class Report(object):
 
     def parse_rows(self, row, level=0, upperlevels=None):
         """
-        Parse through the data returned by a repor. Return a list of dicts. 
+        Parse through the data returned by a repor. Return a list of dicts.
 
         This method is recursive.
         """
@@ -126,7 +126,11 @@ class Report(object):
                 element = str(self.elements[level].id)
 
             if element == "datetime":
-                data[element] = dateutil.parser.parse(str(row['name']))
+                data[element] = datetime(int(row.get('year', 0)),
+                                         int(row.get('month', 0)),
+                                         int(row.get('day', 0)),
+                                         int(row.get('hour', 0)),
+                                         int(row.get('minute', 0)))
                 data["datetime_friendly"] = str(row['name'])
             else:
                 data[element] = row['name'].encode('utf-8')

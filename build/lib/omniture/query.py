@@ -12,7 +12,6 @@ import logging
 import sys
 
 
-
 def immutable(method):
     @functools.wraps(method)
     def wrapped_method(self, *vargs, **kwargs):
@@ -30,20 +29,20 @@ class Query(object):
     >>> report = report.element("page").element("prop1").
         metric("pageviews").granularity("day").run()
     Making it easy to create a report.
-    
-    To see the raw definition use 
+
+    To see the raw definition use
     >>> print report
     """
 
-    GRANULARITY_LEVELS = ['hour', 'day', 'week', 'month', 'quarter', 'year']
+    GRANULARITY_LEVELS = ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'year']
 
     def __init__(self, suite):
         """ Setup the basic structure of the report query. """
         self.log = logging.getLogger(__name__)
         self.suite = suite
         self.raw = {}
-        #Put the report suite in so the user can print
-        #the raw query and have it work as is
+        # Put the report suite in so the user can print
+        # the raw query and have it work as is
         self.raw['reportSuiteID'] = str(self.suite.id)
         self.id = None
         self.report = reports.Report
@@ -80,6 +79,23 @@ class Query(object):
         return query
 
     @immutable
+    def from_date(self, from_string):
+        """
+        Define a date range for the report.
+
+        * start -- The start date of the report. If stop is not present
+            it is assumed to be the to and from dates.
+        """
+        self.raw.update({
+            'dateFrom': from_string
+        })
+
+        if 'minute' in from_string:
+            self.raw['source'] = "realtime"
+
+        return self
+
+    @immutable
     def range(self, start, stop=None, months=0, days=0, granularity=None):
         """
         Define a date range for the report.
@@ -95,7 +111,7 @@ class Query(object):
         stop = utils.date(stop)
 
         if days or months:
-            stop = start + relativedelta(days=days-1, months=months)
+            stop = start + relativedelta(days=days - 1, months=months)
         else:
             stop = stop or start
 
@@ -114,18 +130,16 @@ class Query(object):
 
     @immutable
     def granularity(self, granularity):
-        """ 
-        Set the granulartiy for the report. 
-        
-        Values are one of the following 
+        """
+        Set the granulartiy for the report.
+
+        Values are one of the following
         'hour', 'day', 'week', 'month', 'quarter', 'year'
         """
-        if granularity not in self.GRANULARITY_LEVELS:
-                levels = ", ".join(self.GRANULARITY_LEVELS)
-                raise ValueError("Granularity should be one of: " + levels)
-
         self.raw['dateGranularity'] = granularity
 
+        if 'minute' in granularity:
+            self.raw['source'] = "realtime"
         return self
 
     @immutable
