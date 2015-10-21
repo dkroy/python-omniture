@@ -126,7 +126,12 @@ class Report(object):
                 element = str(self.elements[level].id)
 
             if element == "datetime":
-                data[element] = datetime(int(row.get('year', 0)), int(row.get('month', 0)), int(row.get('day', 0)), int(row.get('hour', 0)), int(row.get('minute', 0)))
+                data[element] = datetime(int(row.get('year', 0)),
+                                         int(row.get('month', 0)),
+                                         int(row.get('day', 0)),
+                                         int(row.get('hour', 0)),
+                                         int(row.get('minute', 0)),
+                                         int(row.get('second', 0)))
                 data["datetime_friendly"] = str(row['name'])
             else:
                 data[element] = row['name'].encode('utf-8')
