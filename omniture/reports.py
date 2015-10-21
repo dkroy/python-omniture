@@ -1,11 +1,11 @@
 # encoding: utf-8
-
 from elements import Value, Element, Segment
 import utils
 import logging
 from collections import OrderedDict
 from datetime import datetime
 import json
+import dateutil.parser
 
 
 class InvalidReportError(Exception):
@@ -126,12 +126,7 @@ class Report(object):
                 element = str(self.elements[level].id)
 
             if element == "datetime":
-                data[element] = datetime(int(row.get('year', 0)),
-                                         int(row.get('month', 0)),
-                                         int(row.get('day', 0)),
-                                         int(row.get('hour', 0)),
-                                         int(row.get('minute', 0)),
-                                         int(row.get('second', 0)))
+                data[element] = dateutil.parser.parse(str(row['name']))
                 data["datetime_friendly"] = str(row['name'])
             else:
                 data[element] = row['name'].encode('utf-8')
