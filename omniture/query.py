@@ -79,6 +79,14 @@ class Query(object):
         return query
 
     @immutable
+    def realtime(self):
+        """
+        Explicit Use of realtime reporting api
+        """
+        self.raw['source'] = "realtime"
+        return self
+
+    @immutable
     def from_date(self, from_string):
         """
         Define a date range for the report.
@@ -89,10 +97,6 @@ class Query(object):
         self.raw.update({
             'dateFrom': from_string
         })
-
-        if 'minute' in from_string:
-            self.raw['source'] = "realtime"
-
         return self
 
     @immutable
